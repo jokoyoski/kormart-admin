@@ -11,11 +11,22 @@ import { hasRouteAccess } from '@/utils/permissions';
  */
 const ProtectedRoute = ({ children, requiredPermission = null }) => {
  const location = useLocation();
- const { user, isAuthenticated } = useAuthStore();
+ const { user, isAuthenticated, accessToken, logout } =
+  useAuthStore();
 
- // Redirect to login if not authenticated
- if (!isAuthenticated || !user) {
-  return <Navigate to="/login" replace />;
+ // Check if all required auth data exists
+ const isFullyAuthenticated = isAuthenticated && user && accessToken;
+
+ // Redirect to login if not fully authenticated
+ if (!isFullyAuthenticated) {
+  // Clear any inconsistent auth state before redirecting
+  logout();
+  return (
+   <Navigate
+    to="/login"
+    replace
+   />
+  );
  }
 
  // Check if user has access to this route
@@ -27,11 +38,15 @@ const ProtectedRoute = ({ children, requiredPermission = null }) => {
   // Show error message
   toast.error('You do not have permission to access this page.');
   // Redirect to dashboard
-  return <Navigate to="/dashboard" replace />;
+  return (
+   <Navigate
+    to="/dashboard"
+    replace
+   />
+  );
  }
 
  return children;
 };
 
 export default ProtectedRoute;
-

@@ -2,10 +2,24 @@ import useAuthStore from '@/store/authStore';
 import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoutes = () => {
- const { isAuthenticated, user } = useAuthStore();
+ const { isAuthenticated, user, accessToken, logout } =
+  useAuthStore();
 
- if (user && isAuthenticated) return <Outlet />;
- else return <Navigate to="/login" />;
+ // Check if all required auth data exists
+ const isFullyAuthenticated = isAuthenticated && user && accessToken;
+
+ if (!isFullyAuthenticated) {
+  // Clear any inconsistent auth state before redirecting
+  logout();
+  return (
+   <Navigate
+    to="/login"
+    replace
+   />
+  );
+ }
+
+ return <Outlet />;
 };
 
 export default ProtectedRoutes;

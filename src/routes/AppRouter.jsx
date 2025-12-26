@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react';
 import AuthLayout from '@/layouts/AuthLayout/AuthLayout';
 import DashboardLayout from '@/layouts/DashboardLayout/DashboardLayout';
 import {
@@ -13,58 +12,44 @@ import ForgotPasswordPage from '@/pages/auth/forgot-password';
 import ResetPasswordPage from '@/pages/auth/reset-password';
 import OTPVerificationPage from '@/pages/auth/otp-verification';
 import useAuthStore from '@/store/authStore';
-import Loading from '@/components/Loading';
 import { Navigate } from 'react-router-dom';
 import DashboardPage from '@/pages/dashboard/dashoard-page';
-
-
-const OrdersPage = lazy(() => import('@/pages/dashboard/OrdersPage'));
-const NotificationsPage = lazy(
- () => import('@/pages/dashboard/notifications-page'),
-);
-const CreateNotificationsPage = lazy(
- () => import('@/pages/dashboard/create-notifications'),
-);
-const UserManagementPage = lazy(
- () => import('@/pages/dashboard/user-management'),
-);
-const UserDetailsPage = lazy(
- () => import('@/pages/dashboard/user-details'),
-);
-const CategoriesPage = lazy(
- () => import('@/pages/dashboard/categories-page'),
-);
-const DisputesPage = lazy(
- () => import('@/pages/dashboard/DisputesPage'),
-);
-const DisputeDetailsPage = lazy(
- () => import('@/pages/dashboard/DisputeDetailsPage'),
-);
-const CategoryDetailsPage = lazy(
- () => import('@/pages/dashboard/category-details'),
-);
-const RolesPermissionsPage = lazy(
- () => import('@/pages/dashboard/roles-permissions'),
-);
-const TransactionsPage = lazy(
- () => import('@/pages/dashboard/transactions-page'),
-);
-const TransactionDetailsPage = lazy(
- () => import('@/pages/dashboard/transaction-details'),
-);
-const OrderDetailsPage = lazy(
- () => import('@/pages/dashboard/order-details'),
-);
-const SettingsPage = lazy(
- () => import('@/pages/dashboard/SettingsPage.jsx'),
-);
+import OrdersPage from '@/pages/dashboard/OrdersPage';
+import NotificationsPage from '@/pages/dashboard/notifications-page';
+import CreateNotificationsPage from '@/pages/dashboard/create-notifications';
+import UserManagementPage from '@/pages/dashboard/user-management';
+import UserDetailsPage from '@/pages/dashboard/user-details';
+import CategoriesPage from '@/pages/dashboard/categories-page';
+import DisputesPage from '@/pages/dashboard/DisputesPage';
+import DisputeDetailsPage from '@/pages/dashboard/DisputeDetailsPage';
+import CategoryDetailsPage from '@/pages/dashboard/category-details';
+import RolesPermissionsPage from '@/pages/dashboard/roles-permissions';
+import TransactionsPage from '@/pages/dashboard/transactions-page';
+import TransactionDetailsPage from '@/pages/dashboard/transaction-details';
+import OrderDetailsPage from '@/pages/dashboard/order-details';
+import SettingsPage from '@/pages/dashboard/SettingsPage.jsx';
 
 // Component to check auth and redirect
 const AuthRedirect = ({ children }) => {
- const { isAuthenticated } = useAuthStore();
- if (isAuthenticated) {
-  return <Navigate to="/dashboard" replace />;
+ const { isAuthenticated, user, accessToken, logout } =
+  useAuthStore();
+
+ // If isAuthenticated is true but user or token is missing, clear the inconsistent state
+ if (isAuthenticated && (!user || !accessToken)) {
+  logout();
+  return children;
  }
+
+ // Only redirect to dashboard if all auth data exists
+ if (isAuthenticated && user && accessToken) {
+  return (
+   <Navigate
+    to="/dashboard"
+    replace
+   />
+  );
+ }
+
  return children;
 };
 
@@ -146,19 +131,13 @@ const AppRouter = () => {
      children: [
       {
        index: true,
-       element: (
-        <Suspense fallback={<Loading />}>
-         <DashboardPage />
-        </Suspense>
-       ),
+       element: <DashboardPage />,
       },
       {
        path: '/dashboard/orders',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <OrdersPage />
-         </Suspense>
+         <OrdersPage />
         </ProtectedRoute>
        ),
       },
@@ -166,9 +145,7 @@ const AppRouter = () => {
        path: '/dashboard/orders/:id',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <OrderDetailsPage />
-         </Suspense>
+         <OrderDetailsPage />
         </ProtectedRoute>
        ),
       },
@@ -176,9 +153,7 @@ const AppRouter = () => {
        path: '/dashboard/transactions',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <TransactionsPage />
-         </Suspense>
+         <TransactionsPage />
         </ProtectedRoute>
        ),
       },
@@ -186,9 +161,7 @@ const AppRouter = () => {
        path: '/dashboard/transactions/:id',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <TransactionDetailsPage />
-         </Suspense>
+         <TransactionDetailsPage />
         </ProtectedRoute>
        ),
       },
@@ -196,9 +169,7 @@ const AppRouter = () => {
        path: '/dashboard/notifications',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <NotificationsPage />
-         </Suspense>
+         <NotificationsPage />
         </ProtectedRoute>
        ),
       },
@@ -206,9 +177,7 @@ const AppRouter = () => {
        path: '/dashboard/create-notification',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <CreateNotificationsPage />
-         </Suspense>
+         <CreateNotificationsPage />
         </ProtectedRoute>
        ),
       },
@@ -216,9 +185,7 @@ const AppRouter = () => {
        path: '/dashboard/user-management',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <UserManagementPage />
-         </Suspense>
+         <UserManagementPage />
         </ProtectedRoute>
        ),
       },
@@ -226,9 +193,7 @@ const AppRouter = () => {
        path: '/dashboard/user-management/:id',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <UserDetailsPage />
-         </Suspense>
+         <UserDetailsPage />
         </ProtectedRoute>
        ),
       },
@@ -236,9 +201,7 @@ const AppRouter = () => {
        path: '/dashboard/categories',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <CategoriesPage />
-         </Suspense>
+         <CategoriesPage />
         </ProtectedRoute>
        ),
       },
@@ -246,9 +209,7 @@ const AppRouter = () => {
        path: 'category/:id',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <CategoryDetailsPage />
-         </Suspense>
+         <CategoryDetailsPage />
         </ProtectedRoute>
        ),
       },
@@ -256,9 +217,7 @@ const AppRouter = () => {
        path: '/dashboard/disputes',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <DisputesPage />
-         </Suspense>
+         <DisputesPage />
         </ProtectedRoute>
        ),
       },
@@ -266,9 +225,7 @@ const AppRouter = () => {
        path: '/dashboard/disputes/:id',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <DisputeDetailsPage />
-         </Suspense>
+         <DisputeDetailsPage />
         </ProtectedRoute>
        ),
       },
@@ -276,19 +233,13 @@ const AppRouter = () => {
        path: '/dashboard/members-management',
        element: (
         <ProtectedRoute>
-         <Suspense fallback={<Loading />}>
-          <RolesPermissionsPage />
-         </Suspense>
+         <RolesPermissionsPage />
         </ProtectedRoute>
        ),
       },
       {
        path: '/dashboard/settings',
-       element: (
-        <Suspense fallback={<Loading />}>
-         <SettingsPage />
-        </Suspense>
-       ),
+       element: <SettingsPage />,
       },
      ],
      errorElement: <ErrorDisplay />,
